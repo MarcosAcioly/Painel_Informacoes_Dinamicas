@@ -46,10 +46,7 @@ class Dashboard {
             </div>
             <div id="component-container"></div>
             <div class="info-display" id="info-display">
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <p>Carregando dados...</p>
-                </div>
+                <div id="loading" style="display: none;">Carregando...</div>
             </div>
         `;
         
@@ -88,11 +85,18 @@ class Dashboard {
     }
     
     showLoading() {
-        document.getElementById('loading').style.display = 'flex';
+        const loadingElement = document.getElementById('loading');
+        console.log(loadingElement);
+        loadingElement.style.display = 'flex';
     }
     
     hideLoading() {
-        document.getElementById('loading').style.display = 'none';
+        const loadingElement = document.getElementById('loading');
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
+        } else {
+            console.error('Elemento "loading" não encontrado no DOM.');
+        }
     }
 }
 

@@ -1,10 +1,11 @@
 import { CountriesService } from '../../services/CountriesService.js';
 import { Dashboard } from '../Dashboard.js';
+
 class PaisesComponent {
     constructor() {
-        this.countriesService = new CountriesService();
+        this.service = new CountriesService();
     }
-    
+
     render(container) {
         const html = `
             <div class="search-panel" id="countries-panel">
@@ -21,32 +22,26 @@ class PaisesComponent {
                 </div>
             </div>
         `;
-        
+
         container.innerHTML = html;
         this.addEventListeners();
     }
-    
+
     addEventListeners() {
         const searchBtn = document.getElementById('search-country-btn');
-        const countryInput = document.getElementById('country-input');
         const regionBtns = document.querySelectorAll('.region-btn');
-        
+        const input = document.getElementById('country-input'); // Captura o input após renderizar
+
         searchBtn.addEventListener('click', () => {
-            const country = countryInput.value.trim();
-            if (country) {
-                this.searchCountry(country);
-            }
+            this.searchCountry(input);
         });
-        
-        countryInput.addEventListener('keypress', (e) => {
+
+        input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                const country = countryInput.value.trim();
-                if (country) {
-                    this.searchCountry(country);
-                }
+                this.searchCountry(input);
             }
         });
-        
+
         regionBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const region = btn.dataset.region;
@@ -54,27 +49,29 @@ class PaisesComponent {
             });
         });
     }
-    
-    searchCountry(countryName) {
-        const dashboard = new Dashboard();
-        dashboard.showLoading();
-        
-        this.countriesService.getCountryByName(countryName)
-            .then(data => {
-                this.displayCountryData(data[0]);
-                dashboard.hideLoading();
+
+    searchCountry(input) {
+        const countryName = input.value.trim(); // Captura o valor do input
+        if (!countryName) {
+            console.warn('O nome do país não pode estar vazio.');
+            return;
+        }
+
+        this.service.getCountryByName(countryName)
+            .then(country => {
+                console.log(country); 
+                this.renderCountryData(country);
             })
             .catch(error => {
-                this.displayError(error);
-                dashboard.hideLoading();
+                console.error('Erro ao buscar país:', error);
             });
     }
-    
+
     getCountriesByRegion(region) {
         const dashboard = new Dashboard();
         dashboard.showLoading();
         
-        this.countriesService.getCountriesByRegion(region)
+        this.service.getCountriesByRegion(region)
             .then(data => {
                 this.displayCountriesList(data);
                 dashboard.hideLoading();
@@ -85,33 +82,14 @@ class PaisesComponent {
             });
     }
     
-    displayCountryData(country) {
-        const infoDisplay = document.getElementById('info-display');
-        
-        const capital = country.capital ? country.capital[0] : 'N/A';
-        const population = country.population ? country.population.toLocaleString() : 'N/A';
-        const flagUrl = country.flags.png;
-        
-        const html = `
-            <div class="country-card">
-                <div class="card-title">
-                    <img src="${flagUrl}" alt="${country.name.common} flag">
-                    <h2>${country.name.common}</h2>
-                </div>
-                <div class="details-grid">
-                    <div class="detail-item">
-                        <strong>Capital</strong>
-                        <span>${capital}</span>
-                    </div>
-                    <div class="detail-item">
-                        <strong>População</strong>
-                        <span>${population}</span>
-                    </div>
-                </div>
-            </div>
+    renderCountryData(country) {
+        const container = document.getElementById('component-container');
+        container.innerHTML = `
+            <h2>${country[0].name.common}</h2>
+            <p>Capital: ${country[0].capital}</p>
+            <p>População: ${country[0].population}</p>
+            <img src="${country[0].flags.svg}" alt="Bandeira de ${country[0].name.common}" />
         `;
-        
-        infoDisplay.innerHTML = html;
     }
     
     displayCountriesList(countries) {
@@ -146,9 +124,9 @@ class PaisesComponent {
         const dashboard = new Dashboard();
         dashboard.showLoading();
         
-        this.countriesService.getCountryByCode(countryCode)
+        this.service.getCountryByCode(countryCode)
             .then(data => {
-                this.displayCountryData(data[0]);
+                this.renderCountryData(data);
                 dashboard.hideLoading();
             })
             .catch(error => {
@@ -165,6 +143,22 @@ class PaisesComponent {
                 <p>${message}</p>
             </div>
         `;
+    }
+
+    hideLoading() {
+        const loadingElement = document.getElementById('loading');
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
+        } else {
+            console.warn('Elemento "loading" não encontrado no DOM. Verifique se renderCategorySelector foi chamado.');
+        }
+    }
+
+    init() {
+        console.log('Inicializando Dashboard...');
+        this.renderCategorySelector();
+        this.renderActiveComponent();
+        this.addEventListeners();
     }
 }
 

@@ -3,9 +3,10 @@ import { ApiClient } from '../core/ApiClient.js';
 class CountriesService {
     constructor() {
         this.apiClient = new ApiClient();
-        this.baseUrl = 'https://restcountries.com/v3.1';
+        this.baseUrl = ' https://restcountries.com/v3.1';
     }
     
+
     async getAllCountries() {
         const url = `${this.baseUrl}/all?fields=name,capital,population,flags,cca2`;
         return await this.apiClient.get(url);
@@ -27,7 +28,6 @@ class CountriesService {
     }
     
     async getCountriesByLanguage(language) {
-        // A API não suporta diretamente busca por idioma, então precisamos filtrar os resultados
         const countries = await this.getAllCountries();
         return countries.filter(country => {
             if (country.languages) {
@@ -40,7 +40,6 @@ class CountriesService {
     }
     
     async getCountriesByCurrency(currency) {
-        // A API não suporta diretamente busca por moeda, então precisamos filtrar os resultados
         const countries = await this.getAllCountries();
         return countries.filter(country => {
             if (country.currencies) {
@@ -50,6 +49,16 @@ class CountriesService {
             }
             return false;
         });
+    }
+
+    async getIndependentCountries() {
+        const url = `${this.baseUrl}/independent?status=true&fields=languages,capital`;
+        return await this.apiClient.get(url);
+    }
+
+    async getCountriesWithNameAndFlags() {
+        const url = `${this.baseUrl}/all?fields=name,flags`;
+        return await this.apiClient.get(url);
     }
 }
 
