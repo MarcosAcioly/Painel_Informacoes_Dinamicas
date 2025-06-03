@@ -14,115 +14,8 @@
             <p>Seu painel de informações dinâmicas</p>
         </header>
 
-        <div class="dashboard">
-            <div class="category-selector">
-                <button class="category-btn active" data-category="countries">
-                    <i class="fas fa-globe-americas"></i> Países
-                </button>
-                <button class="category-btn" data-category="weather">
-                    <i class="fas fa-cloud-sun"></i> Clima
-                </button>
-                <button class="category-btn" data-category="movies">
-                    <i class="fas fa-film"></i> Filmes
-                </button>
-                <button class="category-btn" data-category="music">
-                    <i class="fas fa-music"></i> Música
-                </button>
-                <button class="category-btn" data-category="jokes">
-                    <i class="fas fa-laugh-squint"></i> Piadas
-                </button>
-            </div>
-
-            <div class="search-panel" id="countries-panel">
-                <div class="language-selector">
-                    <label for="language-select">Idioma:</label>
-                    <select id="language-select">
-                        <option value="pt">Português</option>
-                        <option value="en">Inglês</option>
-                        <option value="es">Espanhol</option>
-                        <option value="fr">Francês</option>
-                        <option value="de">Alemão</option>
-                        <option value="it">Italiano</option>
-                        <option value="ru">Russo</option>
-                        <option value="el">Grego</option>
-                        <option value="nl">Holandês</option>
-                    </select>
-                </div>
-                <div class="search-container">
-                    <input type="text" id="country-input" placeholder="Digite o nome de um país...">
-                    <button id="search-country-btn"><i class="fas fa-search"></i> Buscar</button>
-                    <button id="random-country-btn"><i class="fas fa-random"></i> Aleatório</button>
-                </div>
-            </div>
-
-            <div class="search-panel hidden" id="weather-panel">
-                <div class="search-container">
-                    <input type="text" id="city-input" placeholder="Digite o nome de uma cidade...">
-                    <button id="search-weather-btn"><i class="fas fa-search"></i> Buscar</button>
-                    <button id="current-location-weather-btn"><i class="fas fa-location-arrow"></i> Minha Localização</button>
-                </div>
-                <div class="unit-selector">
-                    <label><input type="radio" name="weather-unit" value="metric" checked> Celsius</label>
-                    <label><input type="radio" name="weather-unit" value="imperial"> Fahrenheit</label>
-                </div>
-            </div>
-
-            <div class="search-panel hidden" id="movies-panel">
-                <div class="search-container">
-                    <input type="text" id="movie-input" placeholder="Digite o nome de um filme...">
-                    <button id="search-movie-btn"><i class="fas fa-search"></i> Buscar</button>
-                    <button id="popular-movies-btn"><i class="fas fa-fire"></i> Populares</button>
-                </div>
-                <div class="language-selector">
-                    <label for="movie-language">Idioma:</label>
-                    <select id="movie-language">
-                        <option value="pt-BR">Português</option>
-                        <option value="en-US">Inglês</option>
-                        <option value="es-ES">Espanhol</option>
-                        <option value="fr-FR">Francês</option>
-                        <option value="de-DE">Alemão</option>
-                        <option value="it-IT">Italiano</option>
-                        <option value="ru-RU">Russo</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="search-panel hidden" id="music-panel">
-                <div class="search-container">
-                    <input type="text" id="music-input" placeholder="Digite o nome de uma música, artista ou álbum...">
-                    <button id="search-music-btn"><i class="fas fa-search"></i> Buscar</button>
-                    <button id="top-tracks-btn"><i class="fas fa-chart-line"></i> Top Músicas</button>
-                </div>
-            </div>
-
-            <div class="search-panel hidden" id="jokes-panel">
-                <div class="category-selector">
-                    <button class="joke-type-btn active" data-type="any">Qualquer</button>
-                    <button class="joke-type-btn" data-type="programming">Programação</button>
-                    <button class="joke-type-btn" data-type="pun">Trocadilhos</button>
-                    <button class="joke-type-btn" data-type="dark">Humor Negro</button>
-                </div>
-                <div class="joke-controls">
-                    <button id="get-joke-btn"><i class="fas fa-laugh-squint"></i> Nova Piada</button>
-                </div>
-                <div class="language-selector">
-                    <label for="joke-language">Idioma:</label>
-                    <select id="joke-language">
-                        <option value="pt">Português</option>
-                        <option value="en">Inglês</option>
-                        <option value="es">Espanhol</option>
-                        <option value="fr">Francês</option>
-                        <option value="de">Alemão</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="info-display" id="info-display">
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <p>Carregando dados...</p>
-                </div>
-            </div>
+        <div class="dashboard" id="dashboard-container">
+            <!-- O Dashboard.js irá renderizar o conteúdo aqui -->
         </div>
 
         <div class="terminal">
@@ -144,6 +37,25 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Carregue primeiro o core e serviços -->
+    <script type="module" src="core/ApiClient.js"></script>
+    
+    <!-- Carregue os serviços -->
+    <script type="module" src="services/CountriesService.js"></script>
+    <script type="module" src="services/WeatherService.js"></script>
+    <script type="module" src="services/MoviesService.js"></script>
+    <script type="module" src="services/MusicService.js"></script>
+    <script type="module" src="services/JokesService.js"></script>
+    
+    <!-- Carregue os componentes -->
+    <script type="module" src="components/cards/CardPaises.js"></script>
+    <script type="module" src="components/cards/CardClima.js"></script>
+    <script type="module" src="components/cards/CardFilmes.js"></script>
+    <script type="module" src="components/cards/CardMusica.js"></script>
+    <script type="module" src="components/cards/CardPiadas.js"></script>
+    <script type="module" src="components/Dashboard.js"></script>
+    
+    <!-- Carregue o script principal por último -->
+    <script type="module" src="main.js"></script>
 </body>
 </html>
