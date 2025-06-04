@@ -5,9 +5,12 @@ class CardPiadas {
     constructor() {
         this.jokesService = new JokesService();
         this.currentJokeType = 'any';
+        this.container = null;
     }
 
     render(container) {
+        this.container = container;
+        
         const html = `
             <div class="card p-3 mb-3" id="jokes-panel">
                 <div class="card-body">
@@ -31,7 +34,7 @@ class CardPiadas {
                             </select>
                         </div>
                     </div>
-                    <button id="get-joke-btn" class="btn btn-primary w-100">
+                    <button id="get-joke-btn" class="btn btn-primary w-100" type="button">
                         <i class="fas fa-laugh-squint me-2"></i>Obter Piada
                     </button>
                     <div id="joke-display" class="mt-3"></div>
@@ -44,9 +47,9 @@ class CardPiadas {
     }
 
     addEventListeners() {
-        const jokeTypeSelect = document.getElementById('joke-category');
-        const languageSelect = document.getElementById('joke-language');
-        const getJokeBtn = document.getElementById('get-joke-btn');
+        const jokeTypeSelect = this.container.querySelector('#joke-category');
+        const languageSelect = this.container.querySelector('#joke-language');
+        const getJokeBtn = this.container.querySelector('#get-joke-btn');
 
         if (jokeTypeSelect) {
             jokeTypeSelect.addEventListener('change', () => {
@@ -67,34 +70,52 @@ class CardPiadas {
     }
 
     getJoke() {
-        const dashboard = new Dashboard();
-        dashboard.showLoading();
+        console.log('Iniciando busca de piada...');
 
-        const languageSelect = document.getElementById('joke-language');
-        const categorySelect = document.getElementById('joke-category');
+        const languageSelect = this.container.querySelector('#joke-language');
+        const categorySelect = this.container.querySelector('#joke-category');
+        const jokeDisplay = this.container.querySelector('#joke-display');
 
-        if (!languageSelect || !categorySelect) {
-            this.displayError('Elementos de seleção não encontrados');
-            dashboard.hideLoading();
+        console.log('Elementos encontrados:', {
+            languageSelect: languageSelect?.id,
+            categorySelect: categorySelect?.id,
+            jokeDisplay: jokeDisplay?.id
+        });
+
+        if (!languageSelect || !categorySelect || !jokeDisplay) {
+            console.error('Elementos DOM não encontrados:', {
+                languageSelect: !!languageSelect,
+                categorySelect: !!categorySelect,
+                jokeDisplay: !!jokeDisplay
+            });
+            this.displayError('Elementos necessários não encontrados');
             return;
         }
 
         const language = languageSelect.value;
         const category = categorySelect.value || this.currentJokeType;
 
+        console.log('Buscando piada com parâmetros:', { categoria: category, idioma: language });
+
+        const dashboard = new Dashboard();
+        dashboard.showLoading();
+
         this.jokesService.getJoke(category, language)
             .then(data => {
+                console.log('Piada recebida:', data);
                 this.displayJoke(data);
-                dashboard.hideLoading();
             })
             .catch(error => {
+                console.error('Erro ao buscar piada:', error);
                 this.displayError(error.message || 'Erro ao obter piada');
+            })
+            .finally(() => {
                 dashboard.hideLoading();
             });
     }
 
     displayJoke(joke) {
-        const infoDisplay = document.getElementById('joke-display');
+        const infoDisplay = this.container.querySelector('#joke-display');
 
         if (!infoDisplay) {
             console.error('Elemento "joke-display" não encontrado no DOM.');
@@ -149,8 +170,8 @@ class CardPiadas {
     }
 
     addActionListeners(joke) {
-        const shareBtn = document.querySelector('.share-btn');
-        const likeBtn = document.querySelector('.like-btn');
+        const shareBtn = this.container.querySelector('.share-btn');
+        const likeBtn = this.container.querySelector('.like-btn');
 
         if (shareBtn) {
             shareBtn.addEventListener('click', () => {
@@ -214,14 +235,21 @@ class CardPiadas {
     }
 
     displayError(message) {
-        const infoDisplay = document.getElementById('joke-display');
+        let displayElement = this.container.querySelector('#joke-display');
+        
+        if (!displayElement) {
+            displayElement = document.createElement('div');
+            displayElement.id = 'joke-display';
+            displayElement.className = 'mt-3';
+            this.container.querySelector('.card-body').appendChild(displayElement);
+        }
 
-        if (!infoDisplay) {
-            console.error('Elemento "joke-display" não encontrado no DOM.');
+        if (!displayElement) {
+            console.error('Não foi possível encontrar ou criar o elemento joke-display');
             return;
         }
 
-        infoDisplay.innerHTML = `
+        displayElement.innerHTML = `
             <div class="alert alert-danger d-flex align-items-center" role="alert">
                 <i class="fas fa-exclamation-circle me-2"></i>
                 <div>${message}</div>

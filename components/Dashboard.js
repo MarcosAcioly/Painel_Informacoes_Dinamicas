@@ -61,7 +61,8 @@ class Dashboard {
 
         return categories
             .map((category, index) => `
-                <button class="btn btn-outline-primary category-btn ${index === 0 ? 'active' : ''}" 
+                <button type="button" 
+                        class="btn btn-outline-primary category-btn ${index === 0 ? 'active' : ''}" 
                         data-category="${category.id}">
                     <i class="${category.icon} me-2"></i>${category.label}
                 </button>
