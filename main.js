@@ -1,76 +1,76 @@
 import { Dashboard } from './components/Dashboard.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Inicializa o dashboard
-    const dashboard = new Dashboard();
-    
-    // Configura o terminal
-    setupTerminal();
-});
-
-function setupTerminal() {
-    const terminalInput = document.getElementById('terminal-input');
-    const terminalOutput = document.getElementById('terminal-output');
-    
-    terminalInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const command = terminalInput.value.trim();
-            
-            if (command) {
-                // Adiciona o comando ao output
-                terminalOutput.innerHTML += `<p>> ${command}</p>`;
-                
-                // Processa o comando
-                processCommand(command);
-                
-                // Limpa o input
-                terminalInput.value = '';
-            }
-        }
-    });
-}
-
-function processCommand(command) {
-    const terminalOutput = document.getElementById('terminal-output');
-    
-    switch (command.toLowerCase()) {
-        case 'help':
-            terminalOutput.innerHTML += `
-                <p>Comandos disponíveis:</p>
-                <p>- help: Exibe esta ajuda</p>
-                <p>- clear: Limpa o terminal</p>
-                <p>- about: Informações sobre o InfoNow</p>
-                <p>- services: Lista os serviços disponíveis</p>
-            `;
-            break;
-            
-        case 'clear':
-            terminalOutput.innerHTML = '';
-            break;
-            
-        case 'about':
-            terminalOutput.innerHTML += `
-                <p>InfoNow - Painel Multifuncional de Informações</p>
-                <p>Versão: 1.0</p>
-                <p>Desenvolvido como um projeto modular para exibir informações de diversas APIs.</p>
-            `;
-            break;
-            
-        case 'services':
-            terminalOutput.innerHTML += `
-                <p>Serviços disponíveis:</p>
-                <p>- Países: Informações sobre países do mundo</p>
-                <p>- Clima: Previsão do tempo para cidades</p>
-                <p>- Filmes: Informações sobre filmes</p>
-                <p>- Música: Informações sobre músicas e artistas</p>
-                <p>- Piadas: Piadas aleatórias em diferentes idiomas</p>
-            `;
-            break;
-            
-        default:
-            terminalOutput.innerHTML += `<p>Comando não reconhecido. Digite 'help' para ver os comandos disponíveis.</p>`;
+class App {
+    constructor() {
+        this.dashboard = null;
     }
-    
-    // Rola o terminal para o final
-    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+
+    init() {
+        document.addEventListener('DOMContentLoaded', () => {
+            this.setupDOMStructure();
+            this.initializeDashboard();
+        });
+    }
+
+    setupDOMStructure() {
+        const container = document.getElementById('dashboard-container');
+        if (!container) {
+            throw new Error('Elemento "dashboard-container" não encontrado no DOM.');
+        }
+
+        // Cria a estrutura básica do DOM
+        container.innerHTML = `
+            <div class="container-fluid">
+                <!-- Área de navegação -->
+                <div id="nav-container"></div>
+                
+                <!-- Área principal do conteúdo -->
+                <div class="row">
+                    <div class="col-12">
+                        <!-- Container para o componente ativo -->
+                        <div id="component-container" class="mb-4"></div>
+                        
+                        <!-- Container para exibição de informações -->
+                        <div id="info-display" class="mt-3"></div>
+                        
+                        <!-- Container específico para piadas -->
+                        <div id="joke-display" class="mt-3"></div>
+                    </div>
+                </div>
+
+                <!-- Indicador de carregamento -->
+                <div id="loading" class="position-fixed top-50 start-50 translate-middle" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    initializeDashboard() {
+        try {
+            this.dashboard = new Dashboard();
+        } catch (error) {
+            console.error('Erro ao inicializar o dashboard:', error.message);
+            this.displayError(error.message);
+        }
+    }
+
+    displayError(message) {
+        const infoDisplay = document.getElementById('info-display');
+        if (infoDisplay) {
+            infoDisplay.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    ${message}
+                </div>
+            `;
+        }
+    }
 }
+
+// Inicializa a aplicação
+const app = new App();
+app.init();
+

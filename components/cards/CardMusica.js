@@ -7,11 +7,16 @@ class CardMusica {
     
     render(container) {
         const html = `
-            <div class="search-panel" id="music-panel">
-                <div class="search-container">
-                    <input type="text" id="music-input" placeholder="Digite o nome de uma música, artista ou álbum...">
-                    <button id="search-music-btn"><i class="fas fa-search"></i> Buscar</button>
-                    <button id="top-tracks-btn"><i class="fas fa-chart-line"></i> Top Músicas</button>
+            <div class="card p-3 mb-3" id="music-panel">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="music-input" 
+                           placeholder="Digite o nome de uma música, artista ou álbum...">
+                    <button class="btn btn-primary" id="search-music-btn">
+                        <i class="fas fa-search me-2"></i> Buscar
+                    </button>
+                    <button class="btn btn-secondary" id="top-tracks-btn">
+                        <i class="fas fa-chart-line me-2"></i> Top Músicas
+                    </button>
                 </div>
             </div>
         `;
@@ -79,10 +84,15 @@ class CardMusica {
     displaySearchResults(data) {
         const infoDisplay = document.getElementById('info-display');
         
-        if (data.tracks && data.tracks.items && data.tracks.items.length > 0) {
-            let html = '<div class="music-results">';
-            html += '<h2>Resultados da Busca</h2>';
-            html += '<div class="tracks-container">';
+        if (data.tracks?.items?.length > 0) {
+            let html = `
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <h2 class="h4 mb-0">Resultados da Busca</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
+            `;
             
             data.tracks.items.slice(0, 10).forEach(track => {
                 const artistNames = track.artists.map(artist => artist.name).join(', ');
@@ -91,23 +101,35 @@ class CardMusica {
                     'https://via.placeholder.com/300x300?text=Sem+Imagem';
                 
                 html += `
-                    <div class="track-item" data-id="${track.id}">
-                        <img src="${albumImage}" alt="${track.name}">
-                        <div class="track-info">
-                            <h3>${track.name}</h3>
-                            <p>${artistNames}</p>
-                            <p class="album-name">${track.album.name}</p>
-                        </div>
-                        <div class="track-preview">
-                            ${track.preview_url ? 
-                                `<audio controls src="${track.preview_url}"></audio>` : 
-                                '<p class="no-preview">Prévia não disponível</p>'}
+                    <div class="col">
+                        <div class="card h-100 track-item" data-id="${track.id}">
+                            <div class="row g-0">
+                                <div class="col-4">
+                                    <img src="${albumImage}" class="img-fluid rounded-start" alt="${track.name}">
+                                </div>
+                                <div class="col-8">
+                                    <div class="card-body">
+                                        <h3 class="card-title h5">${track.name}</h3>
+                                        <p class="card-text text-muted mb-1">${artistNames}</p>
+                                        <p class="card-text"><small class="text-muted">${track.album.name}</small></p>
+                                        <div class="mt-2">
+                                            ${track.preview_url ? 
+                                                `<audio controls class="w-100" src="${track.preview_url}"></audio>` : 
+                                                '<p class="badge bg-secondary">Prévia não disponível</p>'}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
             });
             
-            html += '</div></div>';
+            html += `
+                        </div>
+                    </div>
+                </div>
+            `;
             infoDisplay.innerHTML = html;
             
             // Adiciona evento de clique para cada faixa
@@ -228,9 +250,9 @@ class CardMusica {
     displayError(message) {
         const infoDisplay = document.getElementById('info-display');
         infoDisplay.innerHTML = `
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>${message}</p>
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <div>${message}</div>
             </div>
         `;
     }
