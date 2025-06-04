@@ -4,50 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InfoNow - Painel Multifuncional</title>
-    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Estilos customizados -->
+    <style>
+        body { background: #f8f9fa; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+        .card { min-height: 250px; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-info-circle"></i> InfoNow</h1>
-            <p>Seu painel de informações dinâmicas</p>
+    <div class="container py-4">
+        <!-- Cabeçalho -->
+        <header class="mb-4 text-center">
+            <h1 class="display-4"><i class="fas fa-info-circle"></i> InfoNow</h1>
+            <p class="lead">Seu painel de informações dinâmicas</p>
         </header>
+        <!-- Painel principal -->
+        <main class="dashboard-grid" id="dashboard-container">
+            <!-- Cards dinâmicos serão inseridos aqui -->
+        </main>
 
-        <div class="dashboard" id="dashboard-container">
-            <!-- O Dashboard.js irá renderizar o conteúdo aqui -->
-        </div>
-
-        <div class="terminal">
-            <div class="terminal-header">
-                <span class="terminal-title">Console InfoNow</span>
-                <span class="terminal-controls">
-                    <i class="fas fa-minus"></i>
-                    <i class="fas fa-square"></i>
-                    <i class="fas fa-times"></i>
-                </span>
-            </div>
-            <div class="terminal-body" id="terminal-output">
-                <p>> Sistema InfoNow inicializado. Digite "help" para ver os comandos disponíveis.</p>
-            </div>
-            <div class="terminal-input">
-                <span>></span>
-                <input type="text" id="terminal-input" placeholder="Digite um comando...">
-            </div>
-        </div>
+        <div id="weather-card"></div>
+        
     </div>
 
-    <!-- Carregue primeiro o core e serviços -->
+    <!-- Bootstrap JavaScript e Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+    <!-- Scripts da aplicação -->
     <script type="module" src="core/ApiClient.js"></script>
     
-    <!-- Carregue os serviços -->
+    <!-- Serviços -->
     <script type="module" src="services/CountriesService.js"></script>
     <script type="module" src="services/WeatherService.js"></script>
     <script type="module" src="services/MoviesService.js"></script>
     <script type="module" src="services/MusicService.js"></script>
     <script type="module" src="services/JokesService.js"></script>
     
-    <!-- Carregue os componentes -->
+    <!-- Componentes -->
     <script type="module" src="components/cards/CardPaises.js"></script>
     <script type="module" src="components/cards/CardClima.js"></script>
     <script type="module" src="components/cards/CardFilmes.js"></script>
@@ -55,7 +54,7 @@
     <script type="module" src="components/cards/CardPiadas.js"></script>
     <script type="module" src="components/Dashboard.js"></script>
     
-    <!-- Carregue o script principal por último -->
+    <!-- Script principal -->
     <script type="module" src="main.js"></script>
 </body>
 </html>

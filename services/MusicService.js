@@ -1,6 +1,6 @@
 import { ApiClient } from '../core/ApiClient.js';
  
- class MusicService {
+class MusicService {
     constructor() {
         this.apiClient = new ApiClient();
         // Nota: Para uma implementação real, você precisaria de uma API de música como Spotify ou Last.fm
@@ -69,4 +69,46 @@ import { ApiClient } from '../core/ApiClient.js';
     }
 }
 
-export {MusicService}
+export { MusicService }
+
+export async function getMusic() {
+    // Exemplo de dados estáticos (substitua por chamada real de API se desejar)
+    return [
+        { artist: 'The Beatles', song: 'Hey Jude' },
+        { artist: 'Queen', song: 'Bohemian Rhapsody' },
+        { artist: 'Michael Jackson', song: 'Billie Jean' },
+        { artist: 'Adele', song: 'Rolling in the Deep' },
+        { artist: 'Ed Sheeran', song: 'Shape of You' }
+    ];
+}
+
+// Busca músicas por nome (gravações) - MusicBrainz
+export async function searchMusic(query) {
+    const url = `https://musicbrainz.org/ws/2/recording/?query=${encodeURIComponent(query)}&fmt=json&limit=10`;
+    const response = await fetch(url, {
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
+    const data = await response.json();
+    // Retorna lista simplificada
+    return data.recordings.map(rec => ({
+        id: rec.id,
+        title: rec.title,
+        artist: rec['artist-credit'] && rec['artist-credit'][0]?.name,
+        release: rec.releases && rec.releases[0]?.title,
+        date: rec.releases && rec.releases[0]?.date,
+        mbid: rec.id
+    }));
+}
+
+// Busca detalhes de uma música (gravação) pelo MBID - MusicBrainz
+export async function getMusicDetails(mbid) {
+    const url = `https://musicbrainz.org/ws/2/recording/${mbid}?inc=artists+releases&fmt=json`;
+    const response = await fetch(url, {
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
+    return await response.json();
+}

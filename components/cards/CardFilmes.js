@@ -7,15 +7,19 @@ class CardFilmes {
     
     render(container) {
         const html = `
-            <div class="search-panel" id="movies-panel">
-                <div class="search-container">
-                    <input type="text" id="movie-input" placeholder="Digite o nome de um filme...">
-                    <button id="search-movie-btn"><i class="fas fa-search"></i> Buscar</button>
-                    <button id="popular-movies-btn"><i class="fas fa-fire"></i> Populares</button>
+            <div class="card p-3 mb-3" id="movies-panel">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="movie-input" placeholder="Digite o nome de um filme...">
+                    <button class="btn btn-primary" id="search-movie-btn">
+                        <i class="fas fa-search me-1"></i> Buscar
+                    </button>
+                    <button class="btn btn-secondary" id="popular-movies-btn">
+                        <i class="fas fa-fire me-1"></i> Populares
+                    </button>
                 </div>
-                <div class="language-selector">
-                    <label for="movie-language">Idioma:</label>
-                    <select id="movie-language">
+                <div class="form-group">
+                    <label for="movie-language" class="form-label">Idioma:</label>
+                    <select class="form-select" id="movie-language">
                         <option value="pt-BR">Português</option>
                         <option value="en-US">Inglês</option>
                         <option value="es-ES">Espanhol</option>
@@ -69,9 +73,10 @@ class CardFilmes {
     searchMovie(movieName) {
         const dashboard = new Dashboard();
         dashboard.showLoading();
-        
-        const language = document.getElementById('movie-language').value;
-        
+
+        const languageSelect = document.getElementById('movie-language');
+        const language = languageSelect ? languageSelect.value : 'pt-BR'; // valor padrão
+
         this.moviesService.searchMovie(movieName, language)
             .then(data => {
                 this.displayMovieData(data);
@@ -83,21 +88,19 @@ class CardFilmes {
             });
     }
     
-    getPopularMovies() {
-        const dashboard = new Dashboard();
-        dashboard.showLoading();
+    async getPopularMovies() {
+        const url = 'https://api.themoviedb.org/3/movie/popular?language=pt-BR';
+        const options = {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZDg4YTY2N2YzMjE1NzgzYTRhZTEzODJhNjVhOTkzNSIsIm5iZiI6MTczMjQ4MDY5OS4zMDMsInN1YiI6IjY3NDM4ZWJiZjNmMjkxOTEyZTk1NTk2YiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.xOOxzpg9KsuMHV0epv8YjuR76KH4oLYdWzG5EZOZo8E'
+          }
+        };
         
-        const language = document.getElementById('movie-language').value;
-        
-        this.moviesService.getPopularMovies(language)
-            .then(data => {
-                this.displayPopularMovies(data);
-                dashboard.hideLoading();
-            })
-            .catch(error => {
-                this.displayError(error);
-                dashboard.hideLoading();
-            });
+        const response = await fetch(url, options);
+        const data = await response.json();
+        this.displayPopularMovies(data);
     }
     
     displayMovieData(data) {
@@ -110,15 +113,25 @@ class CardFilmes {
                 'https://via.placeholder.com/300x450?text=Sem+Imagem';
             
             const html = `
-                <div class="movie-card">
-                    <div class="movie-poster">
-                        <img src="${posterPath}" alt="${movie.title}">
-                    </div>
-                    <div class="movie-details">
-                        <h2>${movie.title}</h2>
-                        <p class="release-date">Data de Lançamento: ${this.formatDate(movie.release_date)}</p>
-                        <p class="rating"><i class="fas fa-star"></i> ${movie.vote_average.toFixed(1)}/10</p>
-                        <p class="overview">${movie.overview || 'Sem descrição disponível.'}</p>
+                <div class="card shadow-sm">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            <img src="${posterPath}" class="img-fluid rounded-start" alt="${movie.title}">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h2 class="card-title h4">${movie.title}</h2>
+                                <p class="card-text text-muted">
+                                    <small>Data de Lançamento: ${this.formatDate(movie.release_date)}</small>
+                                </p>
+                                <p class="card-text">
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-star"></i> ${movie.vote_average.toFixed(1)}/10
+                                    </span>
+                                </p>
+                                <p class="card-text">${movie.overview || 'Sem descrição disponível.'}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -133,7 +146,7 @@ class CardFilmes {
         const infoDisplay = document.getElementById('info-display');
         
         if (data.results && data.results.length > 0) {
-            let html = '<div class="popular-movies">';
+            let html = '<div class="row row-cols-1 row-cols-md-3 g-4">';
             
             data.results.slice(0, 6).forEach(movie => {
                 const posterPath = movie.poster_path ? 
@@ -141,11 +154,17 @@ class CardFilmes {
                     'https://via.placeholder.com/150x225?text=Sem+Imagem';
                 
                 html += `
-                    <div class="movie-item" data-id="${movie.id}">
-                        <img src="${posterPath}" alt="${movie.title}">
-                        <div class="movie-item-details">
-                            <h3>${movie.title}</h3>
-                            <p><i class="fas fa-star"></i> ${movie.vote_average.toFixed(1)}/10</p>
+                    <div class="col">
+                        <div class="card h-100 movie-item" data-id="${movie.id}">
+                            <img src="${posterPath}" class="card-img-top" alt="${movie.title}">
+                            <div class="card-body">
+                                <h3 class="card-title h5">${movie.title}</h3>
+                                <p class="card-text">
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-star"></i> ${movie.vote_average.toFixed(1)}/10
+                                    </span>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -192,18 +211,28 @@ class CardFilmes {
         const genres = movie.genres.map(genre => genre.name).join(', ');
         
         const html = `
-            <div class="movie-details-card">
-                <div class="movie-poster">
-                    <img src="${posterPath}" alt="${movie.title}">
-                </div>
-                <div class="movie-info">
-                    <h2>${movie.title}</h2>
-                    <p class="tagline">${movie.tagline || ''}</p>
-                    <p class="release-date">Data de Lançamento: ${this.formatDate(movie.release_date)}</p>
-                    <p class="genres">Gêneros: ${genres}</p>
-                    <p class="rating"><i class="fas fa-star"></i> ${movie.vote_average.toFixed(1)}/10</p>
-                    <p class="runtime">Duração: ${this.formatRuntime(movie.runtime)}</p>
-                    <p class="overview">${movie.overview || 'Sem descrição disponível.'}</p>
+            <div class="card shadow">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="${posterPath}" class="img-fluid rounded-start" alt="${movie.title}">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h2 class="card-title h4">${movie.title}</h2>
+                            <p class="card-text text-muted">${movie.tagline || ''}</p>
+                            <p class="card-text">
+                                <small class="text-muted">Data de Lançamento: ${this.formatDate(movie.release_date)}</small>
+                            </p>
+                            <p class="card-text">Gêneros: ${genres}</p>
+                            <p class="card-text">
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-star"></i> ${movie.vote_average.toFixed(1)}/10
+                                </span>
+                            </p>
+                            <p class="card-text">Duração: ${this.formatRuntime(movie.runtime)}</p>
+                            <p class="card-text">${movie.overview || 'Sem descrição disponível.'}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -230,9 +259,9 @@ class CardFilmes {
     displayError(message) {
         const infoDisplay = document.getElementById('info-display');
         infoDisplay.innerHTML = `
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>${message}</p>
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                ${message}
             </div>
         `;
     }

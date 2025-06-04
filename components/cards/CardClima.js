@@ -1,184 +1,78 @@
-import { WeatherService } from "../../services/WeatherService.js";
-import { Dashboard } from "../Dashboard.js";
-class CardClima {
-  constructor() {
-    this.weatherService = new WeatherService();
-  }
+import { WeatherService } from '../../services/WeatherService.js';
+import { Dashboard } from '../Dashboard.js';
 
-  render(container) {
-    const html = `
-            <div class="search-panel" id="weather-panel">
-                <div class="search-container">
-                    <input type="text" id="city-input" placeholder="Digite o nome de uma cidade...">
-                    <button id="search-weather-btn"><i class="fas fa-search"></i> Buscar</button>
-                    <button id="current-location-weather-btn"><i class="fas fa-location-arrow"></i> Minha Localização</button>
-                </div>
-                <div class="unit-selector">
-                    <label><input type="radio" name="weather-unit" value="metric" checked> Celsius</label>
-                    <label><input type="radio" name="weather-unit" value="imperial"> Fahrenheit</label>
-                </div>
-            </div>
-            <div id="info-display"></div>
-        `;
-
-    container.innerHTML = html;
-    this.addEventListeners();
-  }
-
-  addEventListeners() {
-    const searchBtn = document.getElementById("search-weather-btn");
-    const locationBtn = document.getElementById("current-location-weather-btn");
-    const cityInput = document.getElementById("city-input");
-    const unitRadios = document.querySelectorAll('input[name="weather-unit"]');
-
-    if (searchBtn && cityInput) {
-      searchBtn.addEventListener("click", () => {
-        const city = cityInput.value.trim();
-        if (city) {
-          this.searchWeather(city);
-        }
-      });
+export class CardClima extends HTMLElement {
+    constructor() {
+        super();
+        this.weatherService = new WeatherService();
+        this.city = 'São Paulo'; // Cidade padrão
     }
 
-    if (locationBtn) {
-      locationBtn.addEventListener("click", () => {
-        this.getCurrentLocationWeather();
-      });
+    connectedCallback() {
+        this.renderForm();
+        this.fetchAndRenderWeather(this.city);
     }
 
-    unitRadios.forEach((radio) => {
-      radio.addEventListener("change", () => {
-        if (cityInput) {
-          const city = cityInput.value.trim();
-          if (city) {
-            this.searchWeather(city);
-          }
+    async fetchAndRenderWeather(city) {
+        try {
+            const weatherData = await this.weatherService.getWeatherByCity(city);
+            this.renderWeather(weatherData);
+        } catch (error) {
+            this.renderError(error.message);
         }
-      });
-    });
-
-    if (cityInput) {
-      cityInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-          const city = cityInput.value.trim();
-          if (city) {
-            this.searchWeather(city);
-          }
-        }
-      });
     }
-  }
 
-  searchWeather(city) {
-    const dashboard = new Dashboard();
-    dashboard.showLoading();
-
-    const unitRadio = document.querySelector('input[name="weather-unit"]:checked');
-    const unit = unitRadio ? unitRadio.value : "metric";
-
-    this.weatherService
-      .getWeatherByCity(city, unit)
-      .then((data) => {
-        this.displayWeatherData(data);
-        dashboard.hideLoading();
-      })
-      .catch((error) => {
-        this.displayError(error);
-        dashboard.hideLoading();
-      });
-  }
-
-  getCurrentLocationWeather() {
-    const dashboard = new Dashboard();
-    dashboard.showLoading();
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const unitRadio = document.querySelector('input[name="weather-unit"]:checked');
-          const unit = unitRadio ? unitRadio.value : "metric";
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-
-          this.weatherService
-            .getWeatherByCoords(lat, lon, unit)
-            .then((data) => {
-              this.displayWeatherData(data);
-              dashboard.hideLoading();
-            })
-            .catch((error) => {
-              this.displayError(error);
-              dashboard.hideLoading();
-            });
-        },
-        (error) => {
-          this.displayError("Erro ao obter localização: " + error.message);
-          dashboard.hideLoading();
-        }
-      );
-    } else {
-      this.displayError("Geolocalização não é suportada pelo seu navegador");
-      dashboard.hideLoading();
-    }
-  }
-
-  displayWeatherData(data) {
-    const infoDisplay = document.getElementById("info-display");
-    if (!infoDisplay) return;
-    const unitRadio = document.querySelector('input[name="weather-unit"]:checked');
-    const unit = unitRadio ? unitRadio.value : "metric";
-    const tempUnit = unit === "metric" ? "°C" : "°F";
-
-    const html = `
-            <div class="weather-card">
-                <h2>${data.name}, ${data.sys.country}</h2>
-                <div class="weather-main">
-                    <img src="https://openweathermap.org/img/wn/${
-                      data.weather[0].icon
-                    }@2x.png" alt="${data.weather[0].description}">
-                    <div class="temp-container">
-                        <span class="temperature">${Math.round(
-                          data.main.temp
-                        )}${tempUnit}</span>
-                        <span class="description">${
-                          data.weather[0].description
-                        }</span>
-                    </div>
-                </div>
-                <div class="weather-details">
-                    <div class="detail">
-                        <i class="fas fa-thermometer-half"></i>
-                        <span>Sensação: ${Math.round(
-                          data.main.feels_like
-                        )}${tempUnit}</span>
-                    </div>
-                    <div class="detail">
-                        <i class="fas fa-tint"></i>
-                        <span>Umidade: ${data.main.humidity}%</span>
-                    </div>
-                    <div class="detail">
-                        <i class="fas fa-wind"></i>
-                        <span>Vento: ${data.wind.speed} ${
-      unit === "metric" ? "m/s" : "mph"
-    }</span>
-                    </div>
+    renderForm() {
+        this.innerHTML = `
+            <div class="card h-100">
+                <div class="card-body">
+                    <form id="weather-form" class="mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="city-input" placeholder="Digite a cidade" value="${this.city}">
+                            <button class="btn btn-primary" type="submit">Buscar</button>
+                        </div>
+                    </form>
+                    <div id="weather-result"></div>
                 </div>
             </div>
         `;
 
-    infoDisplay.innerHTML = html;
-  }
+        this.querySelector('#weather-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const city = this.querySelector('#city-input').value.trim();
+            if (city) {
+                this.city = city;
+                this.fetchAndRenderWeather(city);
+            }
+        });
+    }
 
-  displayError(message) {
-    const infoDisplay = document.getElementById("info-display");
-    if (!infoDisplay) return;
-    infoDisplay.innerHTML = `
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>${message}</p>
+    renderWeather(weatherData) {
+        this.querySelector('#weather-result').innerHTML = `
+            <h5 class="card-title">
+                <i class="fas fa-cloud"></i> Clima em ${weatherData.city}
+            </h5>
+            <div class="text-center mb-3">
+                <img src="${weatherData.icon}" alt="${weatherData.condition}" class="weather-icon">
+                <h2 class="display-4">${weatherData.temp_c}°C</h2>
+                <p class="condition">${weatherData.condition}</p>
+            </div>
+            <div class="weather-details">
+                <p><i class="fas fa-thermometer-half"></i> Sensação: ${weatherData.feelslike_c}°C</p>
+                <p><i class="fas fa-tint"></i> Umidade: ${weatherData.humidity}%</p>
+                <p><i class="fas fa-wind"></i> Vento: ${weatherData.wind_kph} km/h ${weatherData.wind_dir}</p>
             </div>
         `;
-  }
+    }
+
+    renderError(message) {
+        this.querySelector('#weather-result').innerHTML = `
+            <div class="error-message text-center">
+                <i class="fas fa-exclamation-circle text-danger"></i>
+                <p class="text-danger">${message}</p>
+            </div>
+        `;
+    }
 }
 
-export { CardClima };
+customElements.define('card-clima', CardClima);
