@@ -6,6 +6,7 @@ import { CardPiadas } from './cards/CardPiadas.js';
 import { CardAnimal } from './cards/CardAnimal.js';
 import { CardBlockchain } from './cards/CardBlockchain.js';
 import { CardAntivirus } from './cards/CardAntivirus.js';
+import { CardDog } from './cards/CardDog.js';
 
 class Dashboard {
     constructor() {
@@ -19,19 +20,21 @@ class Dashboard {
             jokes: new CardPiadas(),
             animals: new CardAnimal(),
             blockchain: new CardBlockchain(),
-            antivirus: new CardAntivirus()
+            antivirus: new CardAntivirus(),
+            dog: new CardDog()
         };
 
-        // Define categories configuration
+        // Define categories configuration with grid layout settings
         this.categories = [
-            { id: 'countries', icon: 'fas fa-globe-americas', label: 'Países' },
-            { id: 'weather', icon: 'fas fa-cloud-sun', label: 'Clima' },
-            { id: 'movies', icon: 'fas fa-film', label: 'Filmes' },
-            { id: 'music', icon: 'fas fa-music', label: 'Música' },
-            { id: 'jokes', icon: 'fas fa-laugh-squint', label: 'Piadas' },
-            { id: 'animals', icon: 'fas fa-paw', label: 'Animais' },
-            { id: 'blockchain', icon: 'fas fa-coins', label: 'Criptomoedas' },
-            { id: 'antivirus', icon: 'fas fa-shield-virus', label: 'Antivírus' }
+            { id: 'countries', icon: 'fas fa-globe-americas', label: 'Países', cols: 6 },
+            { id: 'weather', icon: 'fas fa-cloud-sun', label: 'Clima', cols: 6 },
+            { id: 'movies', icon: 'fas fa-film', label: 'Filmes', cols: 4 },
+            { id: 'music', icon: 'fas fa-music', label: 'Música', cols: 4 },
+            { id: 'jokes', icon: 'fas fa-laugh-squint', label: 'Piadas', cols: 4 },
+            { id: 'animals', icon: 'fas fa-paw', label: 'Animais', cols: 6 },
+            { id: 'blockchain', icon: 'fas fa-coins', label: 'Criptomoedas', cols: 6 },
+            { id: 'antivirus', icon: 'fas fa-shield-virus', label: 'Antivírus', cols: 6 },
+            { id: 'dog', icon: 'fas fa-dog', label: 'Cachorros', cols: 6 }
         ];
 
         this.init();
@@ -49,15 +52,20 @@ class Dashboard {
             <div class="container-fluid p-3">
                 <nav class="navbar navbar-expand-lg navbar-light bg-light rounded shadow-sm mb-4">
                     <div class="container-fluid">
-                        <div class="navbar-nav d-flex justify-content-around w-100">
-                            ${this.getCategoryButtonsHtml()}
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#categoryNav">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="categoryNav">
+                            <div class="navbar-nav d-flex flex-wrap justify-content-center w-100 gap-2">
+                                ${this.getCategoryButtonsHtml()}
+                            </div>
                         </div>
                     </div>
                 </nav>
-                <div id="component-container" class="mb-4"></div>
+                <div class="row" id="component-container"></div>
                 <div class="position-relative">
                     <div id="info-display" class="mt-3"></div>
-                    <div id="loading" class="position-absolute top-50 start-50 translate-middle" style="display: none;">
+                    <div id="loading" class="position-absolute top-50 start-50 translate-middle d-none">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Carregando...</span>
                         </div>
@@ -72,9 +80,12 @@ class Dashboard {
         return this.categories
             .map((category, index) => `
                 <button type="button" 
-                        class="btn btn-outline-primary category-btn ${index === 0 ? 'active' : ''}" 
-                        data-category="${category.id}">
-                    <i class="${category.icon} me-2"></i>${category.label}
+                        class="btn ${index === 0 ? 'btn-primary active' : 'btn-outline-primary'} category-btn"
+                        data-category="${category.id}"
+                        data-bs-toggle="tooltip"
+                        title="${category.label}">
+                    <i class="${category.icon}"></i>
+                    <span class="d-none d-md-inline ms-2">${category.label}</span>
                 </button>
             `)
             .join('');
@@ -164,7 +175,7 @@ class Dashboard {
     showLoading() {
         const loadingElement = document.getElementById('loading');
         if (loadingElement) {
-            loadingElement.style.display = 'block';
+            loadingElement.classList.remove('d-none');
         }
     }
 
@@ -172,7 +183,7 @@ class Dashboard {
     hideLoading() {
         const loadingElement = document.getElementById('loading');
         if (loadingElement) {
-            loadingElement.style.display = 'none';
+            loadingElement.classList.add('d-none');
         }
     }
 }

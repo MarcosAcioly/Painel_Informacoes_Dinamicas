@@ -5,6 +5,7 @@ import { getMovies } from './services/MoviesService.js';
 import { getMusic } from './services/MusicService.js';
 import { AnimalService } from './services/AnimalService.js';
 import { BlockchainService } from './services/BlockchainService.js';
+import { DogService } from './services/DogService.js';
 
 class App {
     constructor() {
