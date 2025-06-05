@@ -3,7 +3,7 @@ import { ApiClient } from '../core/ApiClient.js';
 class CountriesService {
     constructor() {
         this.apiClient = new ApiClient();
-        this.baseUrl = ' https://restcountries.com/v3.1';
+        this.baseUrl = 'https://restcountries.com/v3.1'; // Corrigido: sem espaço no início
     }
     
 
@@ -63,3 +63,15 @@ class CountriesService {
 }
 
 export { CountriesService };
+
+export async function getCountries() {
+    const response = await fetch('https://restcountries.com/v3.1/all');
+    const data = await response.json();
+    console.log('Resposta da API de países:', data); // Adicione esta linha para depuração
+    if (!Array.isArray(data)) {
+        throw new Error('Resposta inesperada da API de países');
+    }
+    return data.map(country => ({
+        name: country.name.common
+    }));
+}

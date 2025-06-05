@@ -1,81 +1,90 @@
 import { ApiClient } from '../core/ApiClient.js';
 
+const BASE_URL = 'http://api.weatherapi.com/v1';
+const API_KEY = '98e5b4aeeae74a8bb39184134250406';
+
 class WeatherService {
     constructor() {
         this.apiClient = new ApiClient();
-        this.baseWeatherUrl = 'https://api.open-meteo.com/v1';
-        this.baseGeocodingUrl = 'https://geocoding-api.open-meteo.com/v1';
     }
 
     async getWeatherByCoords(lat, lon) {
-        const url = `${this.baseWeatherUrl}/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`;
+        const url = `${BASE_URL}/current.json?key=${API_KEY}&q=${lat},${lon}&lang=pt`;
         const weatherData = await this.apiClient.get(url);
 
-        if (!weatherData || !weatherData.daily) {
+        if (!weatherData || !weatherData.current) {
             throw new Error('Dados do clima não disponíveis.');
         }
 
-        return weatherData;
+        return this.formatWeatherData(weatherData);
     }
 
     async getWeatherByCity(city) {
-        const geocodingUrl = `${this.baseGeocodingUrl}/search?name=${encodeURIComponent(city)}&count=1`;
-        const geocodingData = await this.apiClient.get(geocodingUrl);
+        const url = `${BASE_URL}/current.json?key=${API_KEY}&q=${encodeURIComponent(city)}&lang=pt`;
+        const weatherData = await this.apiClient.get(url);
 
-        console.log('Geocoding Data:', geocodingData); // Verifique os dados retornados
-
-        if (geocodingData.results && geocodingData.results.length > 0) {
-            const { latitude, longitude, name } = geocodingData.results[0]; // Use apenas propriedades disponíveis
-            console.log(`Cidade encontrada: ${name}, Latitude: ${latitude}, Longitude: ${longitude}`);
-            return this.getWeatherByCoords(latitude, longitude);
-        } else {
+        if (!weatherData || !weatherData.current) {
             throw new Error(`Cidade "${city}" não encontrada.`);
         }
+
+        return this.formatWeatherData(weatherData);
+    }
+
+    async getForecast(city, days = 3) {
+        const url = `${BASE_URL}/forecast.json?key=${API_KEY}&q=${encodeURIComponent(city)}&days=${days}&lang=pt`;
+        const forecastData = await this.apiClient.get(url);
+
+        if (!forecastData || !forecastData.forecast) {
+            throw new Error('Dados de previsão não disponíveis.');
+        }
+
+        return forecastData;
+    }
+
+    async searchCities(query) {
+        const url = `${BASE_URL}/search.json?key=${API_KEY}&q=${encodeURIComponent(query)}`;
+        const citiesData = await this.apiClient.get(url);
+
+        if (!Array.isArray(citiesData)) {
+            throw new Error('Erro ao buscar cidades.');
+        }
+
+        return citiesData;
+    }
+
+    formatWeatherData(data) {
+        let icon = '';
+        if (data.current && data.current.condition && data.current.condition.icon) {
+            icon = data.current.condition.icon.startsWith('//')
+                ? 'https:' + data.current.condition.icon
+                : data.current.condition.icon;
+        } else {
+            // Ícone padrão caso não venha da API
+            icon = 'https://cdn.weatherapi.com/weather/64x64/day/113.png';
+        }
+
+        return {
+            city: data.location.name,
+            country: data.location.country,
+            temp_c: data.current.temp_c,
+            temp_f: data.current.temp_f,
+            feelslike_c: data.current.feelslike_c,
+            feelslike_f: data.current.feelslike_f,
+            humidity: data.current.humidity,
+            wind_kph: data.current.wind_kph,
+            wind_mph: data.current.wind_mph,
+            wind_dir: data.current.wind_dir,
+            uv: data.current.uv,
+            condition: data.current.condition.text,
+            icon: icon,
+            last_updated: data.current.last_updated
+        };
     }
 }
 
-function renderWeatherData(weatherData) {
-    if (!weatherData || !weatherData.daily) {
-        document.getElementById('weather-container').innerHTML = `
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>Erro: Dados do clima não disponíveis.</p>
-            </div>
-        `;
-        return;
-    }
-
-    const { temperature_2m_max, temperature_2m_min } = weatherData.daily;
-    document.getElementById('weather-container').innerHTML = `
-        <div class="weather-card">
-            <h2>Clima Atual</h2>
-            <p>Máxima: ${temperature_2m_max[0]}°C</p>
-            <p>Mínima: ${temperature_2m_min[0]}°C</p>
-        </div>
-    `;
+async function getWeather(city) {
+    const weatherService = new WeatherService();
+    return await weatherService.getWeatherByCity(city);
 }
 
-const weatherService = new WeatherService();
-
-async function fetchWeatherDetails() {
-    const city = document.getElementById('city-input').value.trim();
-    if (!city) {
-        alert('Por favor, insira o nome de uma cidade.');
-        return;
-    }
-
-    try {
-        const weatherData = await weatherService.getWeatherByCity(city);
-        renderWeatherData(weatherData);
-    } catch (error) {
-        console.error('Erro ao buscar dados do clima:', error);
-        document.getElementById('weather-container').innerHTML = `
-            <div class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>${error.message}</p>
-            </div>
-        `;
-    }
-}
-
-export { WeatherService };
+export { WeatherService, getWeather };

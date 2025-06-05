@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"="width=device-width, initial-scale=1.0">
     <title>InfoNow - Painel Multifuncional</title>
     
     <!-- Bootstrap CSS -->
@@ -10,20 +10,25 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Estilos customizados -->
-    
+    <style>
+        body { background: #f8f9fa; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+        .card { min-height: 250px; }
+    </style>
 </head>
 <body>
     <div class="container py-4">
         <!-- Cabeçalho -->
-        <header class="mb-4">
+        <header class="mb-4 text-center">
             <h1 class="display-4"><i class="fas fa-info-circle"></i> InfoNow</h1>
             <p class="lead">Seu painel de informações dinâmicas</p>
         </header>
         <!-- Painel principal -->
-        <main class="dashboard" id="dashboard-container">
-           
+        <main class="dashboard-grid" id="dashboard-container">
+            <!-- Cards dinâmicos serão inseridos aqui -->
         </main>
 
+        <div id="weather-card"></div>
         
     </div>
 
@@ -40,6 +45,9 @@
     <script type="module" src="services/MoviesService.js"></script>
     <script type="module" src="services/MusicService.js"></script>
     <script type="module" src="services/JokesService.js"></script>
+    <script type="module" src="services/AnimalService.js"></script>
+    <script type="module" src="services/BlockchainService.js"></script>
+    <script type="module" src="services/AntiVirusService.js"></script>
     
     <!-- Componentes -->
     <script type="module" src="components/cards/CardPaises.js"></script>
@@ -47,6 +55,9 @@
     <script type="module" src="components/cards/CardFilmes.js"></script>
     <script type="module" src="components/cards/CardMusica.js"></script>
     <script type="module" src="components/cards/CardPiadas.js"></script>
+    <script type="module" src="components/cards/CardAnimal.js"></script>
+    <script type="module" src="components/cards/CardBlockchain.js"></script>
+    <script type="module" src="components/cards/CardAntiVirus.js"></script>
     <script type="module" src="components/Dashboard.js"></script>
     
     <!-- Script principal -->

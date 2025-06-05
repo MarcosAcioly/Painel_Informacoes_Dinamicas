@@ -3,6 +3,9 @@ import { CardClima } from './cards/CardClima.js';
 import { CardFilmes } from './cards/CardFilmes.js';
 import { CardMusica } from './cards/CardMusica.js';
 import { CardPiadas } from './cards/CardPiadas.js';
+import { CardAnimal } from './cards/CardAnimal.js';
+import { CardBlockchain } from './cards/CardBlockchain.js';
+import { CardAntivirus } from './cards/CardAntivirus.js';
 
 class Dashboard {
     constructor() {
@@ -13,8 +16,23 @@ class Dashboard {
             weather: new CardClima(),
             movies: new CardFilmes(),
             music: new CardMusica(),
-            jokes: new CardPiadas()
+            jokes: new CardPiadas(),
+            animals: new CardAnimal(),
+            blockchain: new CardBlockchain(),
+            antivirus: new CardAntivirus()
         };
+
+        // Define categories configuration
+        this.categories = [
+            { id: 'countries', icon: 'fas fa-globe-americas', label: 'Países' },
+            { id: 'weather', icon: 'fas fa-cloud-sun', label: 'Clima' },
+            { id: 'movies', icon: 'fas fa-film', label: 'Filmes' },
+            { id: 'music', icon: 'fas fa-music', label: 'Música' },
+            { id: 'jokes', icon: 'fas fa-laugh-squint', label: 'Piadas' },
+            { id: 'animals', icon: 'fas fa-paw', label: 'Animais' },
+            { id: 'blockchain', icon: 'fas fa-coins', label: 'Criptomoedas' },
+            { id: 'antivirus', icon: 'fas fa-shield-virus', label: 'Antivírus' }
+        ];
 
         this.init();
     }
@@ -25,6 +43,7 @@ class Dashboard {
         this.addEventListeners();
     }
 
+    // Renderiza o seletor de categorias e containers principais
     renderCategorySelector() {
         const categorySelectorHtml = `
             <div class="container-fluid p-3">
@@ -46,20 +65,11 @@ class Dashboard {
                 </div>
             </div>
         `;
-
         this.container.innerHTML = categorySelectorHtml;
     }
 
     getCategoryButtonsHtml() {
-        const categories = [
-            { id: 'countries', icon: 'fas fa-globe-americas', label: 'Países' },
-            { id: 'weather', icon: 'fas fa-cloud-sun', label: 'Clima' },
-            { id: 'movies', icon: 'fas fa-film', label: 'Filmes' },
-            { id: 'music', icon: 'fas fa-music', label: 'Música' },
-            { id: 'jokes', icon: 'fas fa-laugh-squint', label: 'Piadas' }
-        ];
-
-        return categories
+        return this.categories
             .map((category, index) => `
                 <button type="button" 
                         class="btn btn-outline-primary category-btn ${index === 0 ? 'active' : ''}" 
@@ -70,23 +80,37 @@ class Dashboard {
             .join('');
     }
 
-    renderActiveComponent() {
-        const componentContainer = document.getElementById('component-container');
-        if (!componentContainer) {
-            this.displayError('Elemento "component-container" não encontrado no DOM.');
-            return;
-        }
+    async renderActiveComponent() {
+        try {
+            const componentContainer = document.getElementById('component-container');
+            if (!componentContainer) {
+                throw new Error('Elemento "component-container" não encontrado no DOM.');
+            }
 
-        componentContainer.innerHTML = '';
+            this.showLoading();
+            componentContainer.innerHTML = '';
 
-        const component = this.components[this.activeCategory];
-        if (component) {
-            component.render(componentContainer);
-        } else {
-            this.displayError(`Componente para a categoria "${this.activeCategory}" não encontrado.`);
+            const component = this.components[this.activeCategory];
+            if (!component) {
+                throw new Error(`Componente para a categoria "${this.activeCategory}" não encontrado.`);
+            }
+
+            if (component instanceof HTMLElement) {
+                componentContainer.appendChild(component);
+            } else if (typeof component.render === 'function') {
+                await component.render(componentContainer);
+            } else {
+                throw new Error(`Componente para a categoria "${this.activeCategory}" não é válido.`);
+            }
+        } catch (error) {
+            this.displayError(error.message);
+            console.error('Erro ao renderizar componente:', error);
+        } finally {
+            this.hideLoading();
         }
     }
 
+    // Exibe mensagens de erro no painel
     displayError(message) {
         const infoDisplay = document.getElementById('info-display');
         if (infoDisplay) {
@@ -99,6 +123,7 @@ class Dashboard {
         }
     }
 
+    // Adiciona listeners aos botões de categoria
     addEventListeners() {
         const categoryButtons = document.querySelectorAll('.category-btn');
         categoryButtons.forEach(button => {
@@ -106,24 +131,36 @@ class Dashboard {
         });
     }
 
-    handleCategoryChange(event, categoryButtons) {
-        event.preventDefault();
-        const button = event.currentTarget;
-        
-        categoryButtons.forEach(btn => {
-            btn.classList.remove('active');
-            btn.classList.remove('btn-primary');
-            btn.classList.add('btn-outline-primary');
-        });
+    async handleCategoryChange(event, categoryButtons) {
+        try {
+            event.preventDefault();
+            const button = event.currentTarget;
+            
+            // Update button styles
+            categoryButtons.forEach(btn => {
+                btn.classList.remove('active', 'btn-primary');
+                btn.classList.add('btn-outline-primary');
+            });
+            
+            button.classList.add('active', 'btn-primary');
+            button.classList.remove('btn-outline-primary');
 
-        button.classList.add('active');
-        button.classList.remove('btn-outline-primary');
-        button.classList.add('btn-primary');
+            // Clean up previous component if needed
+            const oldComponent = this.components[this.activeCategory];
+            if (oldComponent && typeof oldComponent.destroy === 'function') {
+                await oldComponent.destroy();
+            }
 
-        this.activeCategory = button.dataset.category;
-        this.renderActiveComponent();
+            // Update and render new component
+            this.activeCategory = button.dataset.category;
+            await this.renderActiveComponent();
+        } catch (error) {
+            this.displayError('Erro ao mudar de categoria: ' + error.message);
+            console.error('Erro na mudança de categoria:', error);
+        }
     }
 
+    // Exibe o spinner de loading (útil para requisições assíncronas)
     showLoading() {
         const loadingElement = document.getElementById('loading');
         if (loadingElement) {
@@ -131,6 +168,7 @@ class Dashboard {
         }
     }
 
+    // Esconde o spinner de loading
     hideLoading() {
         const loadingElement = document.getElementById('loading');
         if (loadingElement) {

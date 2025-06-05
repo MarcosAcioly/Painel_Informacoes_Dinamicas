@@ -110,4 +110,17 @@ class JokesController {
     }
 }
 
+/**
+ * Função assíncrona para obter uma piada de um serviço externo.
+ * @returns {Promise<Object>} - Objeto contendo o texto da piada.
+ */
+export async function getJoke() {
+    // Exemplo de chamada de API de piadas (ajuste conforme sua API real)
+    const response = await fetch('https://official-joke-api.appspot.com/random_joke');
+    const data = await response.json();
+    return {
+        text: `${data.setup} ${data.punchline}`
+    };
+}
+
 export { JokesService, JokesController };

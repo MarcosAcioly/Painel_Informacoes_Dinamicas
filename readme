@@ -1,0 +1,150 @@
+# Painel de Informações Dinâmicas
+
+Este projeto é um painel web dinâmico que exibe informações diversas usando APIs públicas e componentes customizados em JavaScript.
+
+## Funcionalidades
+
+- **Clima:** Consulta o clima atual de qualquer cidade (WeatherAPI)
+- **Países:** Exibe informações sobre países (REST Countries API)
+- **Filmes:** Mostra filmes populares (TMDB API)
+- **Músicas:** Lista músicas e artistas em destaque (Last.fm API)
+- **Piadas:** Exibe piadas aleatórias (JokeAPI)
+- **Animais:** Mostra informações sobre diferentes animais (API Ninjas)
+- **Criptomoedas:** Exibe preços de criptomoedas em tempo real (API Ninjas)
+- **Antivírus:** Monitora status de segurança do sistema (Microsoft Security API)
+
+## Estrutura do Projeto
+
+```plaintext
+├── index.html          # Página principal
+├── styles/            
+│   ├── reset.css       # Estilos base
+│   ├── components.css  # Estilos dos componentes
+│   ├── layout.css      # Estrutura e grid
+│   └── utilities.css   # Classes utilitárias
+├── core/
+│   └── ApiClient.js    # Cliente HTTP genérico
+├── services/           # Serviços para APIs externas
+├── components/
+│   ├── Dashboard.js    # Gerenciador principal
+│   └── cards/          # Componentes de cards
+└── main.js            # Script de inicialização
+```
+
+## Como funciona
+
+1. **Inicialização:**  
+   Ao abrir o `index.html`, o painel é carregado e os componentes são inicializados via JavaScript.
+
+2. **Navegação:**  
+   O usuário pode alternar entre as categorias (Clima, Países, Filmes, etc.) usando botões ou abas. O `Dashboard.js` gerencia qual componente deve ser exibido.
+
+3. **Cards Dinâmicos:**  
+   Cada card é um Web Component (Custom Element) que busca dados da respectiva API e renderiza as informações no painel.
+
+4. **Exemplo do Card de Clima:**  
+   - O usuário digita o nome da cidade no formulário do card.
+   - O componente faz uma requisição à WeatherAPI e exibe os dados retornados.
+   - Caso haja erro (cidade não encontrada, API fora do ar), uma mensagem de erro é exibida.
+
+## Configuração das APIs
+
+### WeatherAPI (Clima)
+1. Acesse [WeatherAPI.com](https://www.weatherapi.com)
+2. Crie uma conta gratuita
+3. Configure em `.env`:
+```env
+WEATHER_API_KEY=sua_chave_aqui
+```
+
+### API Ninjas (Animais e Criptomoedas)
+1. Acesse [API Ninjas](https://api-ninjas.com)
+2. Registre-se e obtenha sua chave
+3. Configure em `.env`:
+```env
+API_NINJAS_KEY=sua_chave_aqui
+```
+
+### Microsoft Security API (Antivírus)
+1. Registre-se no [Microsoft Partner Center](https://partner.microsoft.com)
+2. Configure em `.env`:
+```env
+MS_SECURITY_KEY=sua_chave_aqui
+```
+
+### Outras APIs
+- Countries API: Não requer autenticação
+- TMDB API: Requer chave
+- Last.fm API: Requer chave
+- JokeAPI: Não requer autenticação
+
+## Variáveis de Ambiente
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+WEATHER_API_KEY=sua_chave_weather
+TMDB_API_KEY=sua_chave_tmdb
+LASTFM_API_KEY=sua_chave_lastfm
+API_NINJAS_KEY=sua_chave_ninjas
+MS_SECURITY_KEY=sua_chave_microsoft
+```
+
+## Limites de Requisições
+| API | Limite Gratuito |
+|-----|-----------------|
+| WeatherAPI | 1.000.000/mês |
+| TMDB | 1.000/dia |
+| Last.fm | 1.000/dia |
+| API Ninjas | 50.000/mês |
+| JokeAPI | 120/minuto |
+| Countries API | Sem limite |
+
+## Como Executar
+
+1. Clone o repositório:
+```bash
+git clone https://github.com/seu-usuario/painel-informacoes-dinamicas.git
+```
+
+2. Configure as variáveis de ambiente:
+```bash
+cp .env.example .env
+# Edite .env com suas chaves
+```
+
+3. Inicie um servidor local:
+```bash
+# Usando VS Code Live Server
+code . && ext install ritwickdey.LiveServer
+```
+
+4. Acesse `http://localhost:5500`
+
+## Recursos Adicionais
+
+- **Auto-refresh:** Cards como criptomoedas e antivírus atualizam automaticamente
+- **Responsividade:** Layout adaptável para diferentes telas
+- **Modo offline:** Algumas funcionalidades funcionam sem internet
+- **Tratamento de erros:** Feedback visual para falhas de API
+
+## Requisitos
+
+- Navegador moderno com suporte a ES6+
+- Conexão com internet para dados em tempo real
+- Node.js 14+ (para desenvolvimento)
+
+## Contribuindo
+
+1. Fork o projeto
+2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -am 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
+
+## Licença
+
+MIT License - veja [LICENSE.md](LICENSE.md)
+
+---
+
+Desenvolvido para fins educacionais e demonstração de integração com múltiplas APIs usando Web Components.

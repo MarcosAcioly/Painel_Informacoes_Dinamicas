@@ -73,9 +73,10 @@ class CardFilmes {
     searchMovie(movieName) {
         const dashboard = new Dashboard();
         dashboard.showLoading();
-        
-        const language = document.getElementById('movie-language').value;
-        
+
+        const languageSelect = document.getElementById('movie-language');
+        const language = languageSelect ? languageSelect.value : 'pt-BR'; // valor padrão
+
         this.moviesService.searchMovie(movieName, language)
             .then(data => {
                 this.displayMovieData(data);
@@ -87,21 +88,19 @@ class CardFilmes {
             });
     }
     
-    getPopularMovies() {
-        const dashboard = new Dashboard();
-        dashboard.showLoading();
+    async getPopularMovies() {
+        const url = 'https://api.themoviedb.org/3/movie/popular?language=pt-BR';
+        const options = {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZDg4YTY2N2YzMjE1NzgzYTRhZTEzODJhNjVhOTkzNSIsIm5iZiI6MTczMjQ4MDY5OS4zMDMsInN1YiI6IjY3NDM4ZWJiZjNmMjkxOTEyZTk1NTk2YiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.xOOxzpg9KsuMHV0epv8YjuR76KH4oLYdWzG5EZOZo8E'
+          }
+        };
         
-        const language = document.getElementById('movie-language').value;
-        
-        this.moviesService.getPopularMovies(language)
-            .then(data => {
-                this.displayPopularMovies(data);
-                dashboard.hideLoading();
-            })
-            .catch(error => {
-                this.displayError(error);
-                dashboard.hideLoading();
-            });
+        const response = await fetch(url, options);
+        const data = await response.json();
+        this.displayPopularMovies(data);
     }
     
     displayMovieData(data) {
